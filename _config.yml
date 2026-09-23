@@ -18,8 +18,8 @@ publication_note: >-
 
 # Web address. For https://USERNAME.github.io/REPOSITORY/ the build sets the
 # sub-path automatically; only change url to your own GitHub address.
-url: "https://USERNAME.github.io"
-baseurl: ""
+url: "https://es-chng.github.io"
+baseurl: "/Schema_lab"
 
 # ---------------------------------------------------------------------------
 # Engine settings. No need to change anything below.
