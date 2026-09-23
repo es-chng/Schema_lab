@@ -161,6 +161,10 @@ def build(article_path, out_path, doi_override=None):
             "authors", fontName=italic, fontSize=10.5, leading=14,
             textColor=INK, spaceAfter=2,
         ),
+        "meta": ParagraphStyle(
+            "meta", fontName=body, fontSize=9, leading=12, textColor=MUTED,
+            spaceAfter=1,
+        ),
         "date": ParagraphStyle(
             "date", fontName=body, fontSize=9, leading=12, textColor=MUTED,
             spaceAfter=12,
@@ -199,9 +203,28 @@ def build(article_path, out_path, doi_override=None):
         f"VOLUME {article['volume']}, ISSUE {article['issue']} · ARTICLE {article['order']}",
         st["badge"]))
     story.append(Paragraph(escape(article["title"]), st["title"]))
-    names = ", ".join(f"{a['given']} {a['family']}" for a in article["authors"])
-    story.append(Paragraph(escape(names), st["authors"]))
-    story.append(Paragraph(f"Published {article['published_date']}", st["date"]))
+    # Authors, numbered affiliations (numbers only when they differ), correspondence
+    affs = []
+    for a in article["authors"]:
+        af = a.get("affiliation")
+        if af and af not in affs:
+            affs.append(af)
+    parts = []
+    for a in article["authors"]:
+        name = escape(f"{a['given']} {a['family']}")
+        if len(affs) > 1 and a.get("affiliation"):
+            name += f"<super>{affs.index(a['affiliation']) + 1}</super>"
+        parts.append(name)
+    story.append(Paragraph(", ".join(parts), st["authors"]))
+    for i, af in enumerate(affs, 1):
+        prefix = f"<super>{i}</super> " if len(affs) > 1 else ""
+        story.append(Paragraph(prefix + escape(af), st["meta"]))
+    if article.get("corresponding_email"):
+        story.append(Paragraph(
+            f"Correspondence: {escape(str(article['corresponding_email']))}", st["meta"]))
+    pub = article["published_date"]
+    pub_text = f"{pub.day} {pub.strftime('%B %Y')}" if hasattr(pub, "strftime") else str(pub)
+    story.append(Paragraph(f"Published {pub_text}", st["date"]))
     story.append(HRFlowable(width="100%", thickness=0.6, color=RULE, spaceBefore=2, spaceAfter=10))
 
     # ---- schema-driven middle: walk the schema exactly as schema-slot.html does ----
@@ -209,7 +232,7 @@ def build(article_path, out_path, doi_override=None):
     if schema_name:
         schema = load_schema(schema_name)
         for field in schema["fields"]:
-            if field.get("visibility") != "public":
+            if field.get("visibility") == "editor":  # default: public
                 continue
             key = field["key"]
             value = article.get(key)
@@ -218,7 +241,7 @@ def build(article_path, out_path, doi_override=None):
                 if not field.get("optional"):
                     story.append(Paragraph(f"[Missing required field: {escape(field['label'])}]", st["error"]))
                 continue
-            style_name = field.get("style", "plain")
+            style_name = field.get("style") or ("table" if field.get("shape") == "table" else "plain")
             is_opinion = style_name == "opinion"
             text_style = st["text_italic"] if is_opinion else st["text"]
 

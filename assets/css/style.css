@@ -146,6 +146,27 @@ main,
   margin: 0 0 0.2rem;
   line-height: 1.4;
 }
+.base-affiliations {
+  margin: 0.3rem 0 0.2rem;
+  font-size: max(var(--min-text), calc(0.88rem * var(--text-scale)));
+  color: var(--muted);
+  line-height: 1.4;
+}
+.base-affiliations p { margin: 0; }
+.base-authors sup,
+.base-affiliations sup { font-size: 0.7em; font-style: normal; }
+.base-authors a.orcid {
+  font-size: 0.75em;
+  font-style: normal;
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule-strong);
+}
+.base-correspondence {
+  margin: 0 0 0.2rem;
+  font-size: max(var(--min-text), calc(0.88rem * var(--text-scale)));
+  color: var(--muted);
+}
+
 .base-date {
   font-size: max(var(--min-text), calc(0.88rem * var(--text-scale)));
   color: var(--muted);

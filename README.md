@@ -25,15 +25,21 @@ few minutes (see the **Actions** tab).
 
 **Articles** (`_articles/*.md`) contain only front matter, in two parts:
 
-- *Base fields*, the same for every article: title, authors, email, volume,
-  issue, order, pages, published date, DOI and licence.
+- *Base fields*, the same for every article: title, authors (each with an
+  optional affiliation and ORCID), corresponding email, volume, issue, order,
+  pages, published date and licence. The DOI is added automatically by the
+  Zenodo workflow; write a `doi:` line only for a DOI obtained elsewhere. Affiliations and the correspondence
+  email appear under the title on the page and in the PDF; affiliations are
+  numbered automatically when authors have different ones.
 - *Schema fields*: the sections defined by the article's schema.
 
 **A schema** (`_data/schema-*.yml`) lists the sections an article type
-contains, in order. Each section declares its **shape** (`text`, `list`,
-`table`, `boolean`, `date`), its **style** (`plain`, `boxed`, `opinion`,
-`badge`, `table`) and whether it is public. One section can be the **teaser**
-shown in listings. The templates read the schema, never individual section
+contains, in order. Each section needs only a `key`, a `label` and a
+**shape** (`text`, `list`, `table`, `boolean`, `date`). Add a **style**
+(`boxed`, `opinion`, `badge`) only to change the default plain look, and
+`visibility: editor` only for private notes that are never shown. Exactly one
+section is the **teaser** shown in listings. An article names its schema by
+file (`schema: schema-brief`). The templates read the schema, never individual section
 names, so a new article type needs only a new schema file.
 `_data/schema-brief.yml` is the annotated example.
 

@@ -1,22 +1,25 @@
 # Example schema: "brief", a short evidence brief.
 #
-# A schema is the list of sections an article of this type contains, in the
-# order they appear on the web page and in the PDF. For each field:
+# A schema lists the sections of one article type, in the order they appear
+# on the web page and in the PDF. Articles refer to it by file name:
+#   schema: schema-brief
 #
+# Each field needs:
 #   key         the name used in the article's front matter
 #   label       the heading readers see
-#   shape       what kind of content:  text | list | table | boolean | date
-#   style       how it looks:          plain | boxed | opinion | badge | table
-#   visibility  public (shown) or editor (never shown; private notes)
-#   optional    true = may be left out
-#   teaser      true = shown under the title in listings (one field only)
-#   max_chars   length limit, checked before every build
-#   columns     for table fields: the column keys, in order
+#   shape       text | list | table | boolean | date
+#
+# Add only when needed:
+#   style       boxed | opinion | badge    (default: plain; tables: table)
+#   visibility  editor                     (default: public; editor = never shown)
+#   optional    true                       (default: required)
+#   teaser      true                       (exactly one field: shown in listings)
+#   max_chars   a number                   (length limit, checked before every build)
+#   columns     [a, b, c]                  (table fields: column keys, in order)
 #
 # Once an article using this schema is published, the schema is locked.
-# To change it later, copy it to a new file (e.g. schema-brief-v2.yml).
+# To change it later, copy it to a new file (schema-brief-v2.yml, version: 2).
 
-name: brief
 version: 1
 
 fields:
@@ -24,70 +27,54 @@ fields:
     label: "Article type"
     shape: text
     style: badge
-    visibility: public
 
   - key: question
     label: "Question"
     shape: text
     style: boxed
-    visibility: public
 
   - key: background
     label: "Background"
     shape: text
-    style: plain
-    visibility: public
 
   - key: evidence
     label: "Evidence"
     shape: table
-    style: table
-    visibility: public
     columns: ["source", "finding", "limitation"]
 
   - key: recommendations
     label: "Recommendations"
     shape: list
     style: boxed
-    visibility: public
 
   - key: open_questions
     label: "Open questions"
     shape: list
-    style: plain
-    visibility: public
     optional: true
 
   - key: perspective
     label: "Personal perspective"
     shape: text
     style: opinion
-    visibility: public
     optional: true
 
   - key: bottom_line
     label: "Bottom line"
     shape: text
     style: boxed
-    visibility: public
     teaser: true
     max_chars: 300
 
   - key: conflicts_declared
     label: "Conflicts of interest declared"
     shape: boolean
-    style: plain
-    visibility: public
 
   - key: last_reviewed
     label: "Evidence reviewed on"
     shape: date
-    style: plain
-    visibility: public
 
   - key: editorial_note
     label: "Editorial note"
     shape: text
-    style: plain
     visibility: editor
     optional: true

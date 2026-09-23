@@ -5,18 +5,18 @@ authors:
   - given: "Jane"
     family: "Example"
     affiliation: "Example Institute"
+    # orcid: "0000-0000-0000-0000"   # optional; adds an ORCID link
 corresponding_email: "jane@example.org"
 volume: 1
 issue: 1
 order: 1
 pages: "1-2"
 published_date: 2026-09-01
-doi: "10.5281/zenodo.XXXXXXX"   # placeholder; the Zenodo workflow supplies the real DOI
 licence: "CC BY 4.0"
+# doi: is added automatically by the Zenodo workflow; no need to write it
 
-# ---- Which schema this article follows, and whether it is live ----
+# ---- Article type (file in _data/) and whether it is live ----
 schema: schema-brief
-schema_version: 1
 status: published               # draft = hidden from issues and the homepage
 
 # ---- Schema fields: the sections defined in _data/schema-brief.yml ----

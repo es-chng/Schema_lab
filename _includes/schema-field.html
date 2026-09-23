@@ -11,7 +11,10 @@
     <div class="field-missing">Missing required field: {{ field.label }}</div>
   {%- endunless -%}
 {%- else -%}
-  <div class="field field-style-{{ field.style }}" data-key="{{ field.key }}">
+  {%- if field.style -%}{%- assign fstyle = field.style -%}
+  {%- elsif field.shape == "table" -%}{%- assign fstyle = "table" -%}
+  {%- else -%}{%- assign fstyle = "plain" -%}{%- endif %}
+  <div class="field field-style-{{ fstyle }}" data-key="{{ field.key }}">
     <h2 class="field-label">{{ field.label }}</h2>
 
     {%- if field.shape == "text" -%}

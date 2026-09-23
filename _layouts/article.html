@@ -22,11 +22,31 @@ layout: null
   <header class="base-header">
     <p class="base-badge">Volume {{ page.volume }}, Issue {{ page.issue }} · Article {{ page.order }}</p>
     <h1>{{ page.title }}</h1>
+    {%- comment -%}
+      Affiliations are numbered only when authors have different ones;
+      a single shared affiliation is printed once without a number.
+    {%- endcomment -%}
+    {%- assign affs = page.authors | map: "affiliation" | compact | uniq -%}
     <p class="base-authors">
       {%- for a in page.authors -%}
-        {{ a.given }} {{ a.family }}{% unless forloop.last %}, {% endunless %}
+        {{ a.given }} {{ a.family }}
+        {%- if affs.size > 1 and a.affiliation -%}
+          {%- for af in affs -%}{%- if af == a.affiliation -%}<sup>{{ forloop.index }}</sup>{%- endif -%}{%- endfor -%}
+        {%- endif -%}
+        {%- if a.orcid %} <a class="orcid" href="https://orcid.org/{{ a.orcid | remove: 'https://orcid.org/' }}">ORCID</a>{%- endif -%}
+        {%- unless forloop.last %}, {% endunless -%}
       {%- endfor -%}
     </p>
+    {%- if affs.size > 0 %}
+    <div class="base-affiliations">
+      {%- for af in affs %}
+      <p>{% if affs.size > 1 %}<sup>{{ forloop.index }}</sup> {% endif %}{{ af }}</p>
+      {%- endfor %}
+    </div>
+    {%- endif %}
+    {%- if page.corresponding_email %}
+    <p class="base-correspondence">Correspondence: <a href="mailto:{{ page.corresponding_email }}">{{ page.corresponding_email }}</a></p>
+    {%- endif %}
     <p class="base-date">Published {{ page.published_date | date: "%-d %B %Y" }}</p>
   </header>
 

@@ -10,7 +10,9 @@ Checks, generically, from the schema definition alone (no field names hardcoded)
   - a field declared with max_chars is not longer than that limit
   - exactly one field in the schema is marked as the teaser (schema-level check,
     run once per schema file, not per article)
-  - published articles pin schema_version to the schema's version
+  - if an article states schema_version, it must match the schema's version
+    (optional: a new version always lives in a new file, so the schema name
+    already identifies it)
   - schemas used by published articles are content-locked (immutability)
 
 Immutability policy
@@ -91,14 +93,31 @@ def is_published(fm: dict, slug: str, ledger: dict) -> bool:
     return False
 
 
-def check_schema_file(schema: dict) -> list[str]:
+VALID_SHAPES = {"text", "list", "table", "boolean", "date"}
+VALID_STYLES = {"plain", "boxed", "opinion", "badge", "table"}
+
+
+def check_schema_file(schema: dict, name: str = "?") -> list[str]:
+    """Defaults: visibility = public, style = plain (table for table fields).
+    Only key, label and shape are required on each field."""
     errors = []
     if "version" not in schema:
-        errors.append(f"schema '{schema.get('name', '?')}' is missing a top-level 'version' field")
+        errors.append(f"schema '{name}' is missing a top-level 'version' field")
+    for f in schema.get("fields", []):
+        k = f.get("key", "?")
+        for req in ("key", "label", "shape"):
+            if req not in f:
+                errors.append(f"schema '{name}': field '{k}' is missing '{req}'")
+        if f.get("shape") and f["shape"] not in VALID_SHAPES:
+            errors.append(f"schema '{name}': field '{k}' has unknown shape '{f['shape']}'")
+        if f.get("style") and f["style"] not in VALID_STYLES:
+            errors.append(f"schema '{name}': field '{k}' has unknown style '{f['style']}'")
+        if f.get("visibility") not in (None, "public", "editor"):
+            errors.append(f"schema '{name}': field '{k}' visibility must be public or editor")
     teasers = [f for f in schema.get("fields", []) if f.get("teaser")]
     if len(teasers) != 1:
         errors.append(
-            f"schema '{schema.get('name', '?')}' must have exactly one teaser field, found {len(teasers)}"
+            f"schema '{name}' must have exactly one teaser field, found {len(teasers)}"
         )
     return errors
 
@@ -141,22 +160,14 @@ def check_article(path: pathlib.Path, schemas: dict, ledger: dict) -> list[str]:
     if not schema:
         return [f"references unknown schema '{schema_name}'"]
 
-    # Pin: published articles must declare schema_version matching the schema
-    published = is_published(fm, slug, ledger)
+    # Optional pin: if the article states schema_version, it must match.
     schema_ver = schema.get("version")
     article_ver = fm.get("schema_version")
-    if published:
-        if article_ver is None:
-            errors.append(
-                f"published article must set schema_version (expected {schema_ver!r} for '{schema_name}') "
-                f"-- pins the format used at publication time"
-            )
-        elif schema_ver is not None and article_ver != schema_ver:
-            errors.append(
-                f"schema_version {article_ver!r} does not match schema '{schema_name}' version {schema_ver!r} "
-                f"-- published articles must not silently move to a new schema version; "
-                f"use a new schema file instead"
-            )
+    if article_ver is not None and schema_ver is not None and article_ver != schema_ver:
+        errors.append(
+            f"schema_version {article_ver!r} does not match schema '{schema_name}' version {schema_ver!r} "
+            f"-- use a new schema file for a new version (or delete the schema_version line)"
+        )
 
     for field in schema.get("fields", []):
         key = field["key"]
@@ -297,8 +308,8 @@ def main() -> int:
 
     total_errors = 0
 
-    for schema in schemas.values():
-        for e in check_schema_file(schema):
+    for name, schema in schemas.items():
+        for e in check_schema_file(schema, name):
             print(f"SCHEMA ERROR  {e}")
             total_errors += 1
 
