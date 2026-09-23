@@ -1,0 +1,9 @@
+# Schema content locks — see scripts/validate_schema.py
+# Do not hand-edit hashes unless restoring a known-good state.
+schema-brief:
+  content_hash: c8de11c5eddd84fc6136fde2dcda2a587f664d33a0e199247550efd151581150
+  locked_at: '2026-09-23T08:28:33Z'
+  locked_by:
+  - example-article-one.md
+  - example-article-two.md
+  version: 1
